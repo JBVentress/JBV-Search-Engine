@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JBV Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0; font-family: sans-serif; background: #0f0f23; color: white;
+      display: flex; flex-direction: column; align-items: center; padding: 2rem;
+    }
+    h1 { background: linear-gradient(45deg,#8a2be2,#da70d6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-size: 2rem; }
+    .search-bar { display: flex; width: 100%; max-width: 600px; margin: 2rem 0; }
+    .search-bar input { flex: 1; padding: 1rem; border-radius: 50px 0 0 50px; border: none; font-size: 1rem; }
+    .search-bar button { padding: 1rem 2rem; background: #8a2be2; border: none; color: white; border-radius: 0 50px 50px 0; cursor: pointer; }
+    .results { width: 100%; max-width: 800px; margin-top: 2rem; }
+    .result { padding: 1rem; background: #1a1a3d; border-radius: 10px; margin-bottom: 1rem; }
+    .result a { color: #da70d6; font-size: 1.2rem; text-decoration: none; }
+    .result-url { color: #999; font-size: 0.9rem; }
+    .result-snippet { color: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>🔍 JBV Private Search</h1>
+  <div class="search-bar">
+    <input type="text" id="query" placeholder="Search privately..." />
+    <button onclick="search()">Search</button>
+  </div>
+  <div class="results" id="results"></div>
+
+  <script>
+    async function search() {
+      const q = document.getElementById('query').value.trim();
+      const resultsBox = document.getElementById('results');
+      if (!q) return;
+
+      resultsBox.innerHTML = '<p>🔍 Searching DuckDuckGo...</p>';
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const json = await res.json();
+
+      if (!json.results || !json.results.length) {
+        resultsBox.innerHTML = '<p>No results found.</p>';
+        return;
+      }
+
+      resultsBox.innerHTML = json.results.map(r => `
+        <div class="result">
+          <a href="${r.url}" target="_blank">${r.title}</a>
+          <div class="result-url">${r.url}</div>
+          <div class="result-snippet">${r.snippet}</div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
